@@ -1,6 +1,6 @@
-name: 'AWS Update S3 Action'
-description: 'Update S3 Bucket in AWS'
-author: 'Kyle Calica'
+name: "S3 Pattern Upload"
+description: "Update S3 Bucket in AWS with a file pattern"
+author: "Martin Miglio"
 branding:
   icon: 'check-square'
   color: 'orange'
