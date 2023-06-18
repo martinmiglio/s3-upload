@@ -1,28 +1,28 @@
-name: 'AWS Update S3 Action'
-description: 'Update S3 Bucket in AWS'
-author: 'Kyle Calica'
+name: "AWS Update S3 Action"
+description: "Update S3 Bucket in AWS"
+author: "Martin Miglio"
 branding:
-  icon: 'check-square'
-  color: 'orange'
+  icon: "check-square"
+  color: "yellow"
 inputs:
-  bucket:
-    description: 'Bucket Name'
-    default: ''
-  package:
-    description: 'Package to upload S3'
-    default: ''
-  key:
-    description: 'Key'
-    default: ''
+  PATTERN:
+    description: "Package to upload S3"
+    default: ""
+  DEST:
+    description: "Key"
+    default: ""
+  AWS_BUCKET_NAME:
+    description: "Bucket Name"
+    default: ""
   AWS_SECRET_KEY:
-    description: 'AWS Secret Key'
-    default: ''
+    description: "AWS Secret Key"
+    default: ""
   AWS_SECRET_ID:
-    description: 'AWS Secret Key'
-    default: ''
+    description: "AWS Secret Key"
+    default: ""
   AWS_REGION:
-    description: 'AWS Region'
-    default: ''
+    description: "AWS Region"
+    default: ""
 runs:
-  using: 'node12'
-  main: 'index.js'
+  using: "node16"
+  main: "index.js"
