@@ -1,23 +1,22 @@
 # s3-upload
+
 Github Action to Upload to S3 Bucket
 
-Uploads to S3 Bucket 
+Uploads to S3 Bucket
 
-```
+```yml
 name: Test Run
-on:
-  push
+on: push
 jobs:
   lambda:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
-      - run: echo "<html><head><title>GH Actions Test</title></head><body><h1>YO THIS WORKS!</h1></body></html>" > index.html
-      - uses: stcalica/s3-upload@master
+      - run: echo "My Data" > myfileglob-${{ github.ref_name }}.txt
+      - uses: martinmiglio/s3-upload@master
         with:
-          bucket: temp-test-gh-action
-          package: index.html
-          key: index
+          PATTERN: myfileglob*.txt
+          DEST: uploads/
+          AWS_BUCKET_NAME: temp-test-gh-action
           AWS_REGION: ${{ secrets.AWS_REGION }}
           AWS_SECRET_ID: ${{ secrets.AWS_SECRET_ID }}
           AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}

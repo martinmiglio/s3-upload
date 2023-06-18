@@ -1,19 +1,30 @@
-const core = require("@actions/core");
-const fs = require("fs");
-const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
-const glob = require("glob");
+const { getInput, setFailed, setOutput } = require("@actions/core");
+const { PutObjectCommand, S3Client } = require("@aws-sdk/client-s3");
+const { readFileSync } = require("fs");
+const { globSync } = require("glob");
+const { basename } = require("path");
 
-try {
-  const AWS_BUCKET_NAME = core.getInput("AWS_BUCKET_NAME");
-  const PATTERN = core.getInput("PATTERN");
-  let DEST = core.getInput("DEST");
+const findFiles = (pattern) => {
+  const matches = globSync(pattern);
+  matches.forEach((match) => {
+    const absolutePath = path.resolve(match);
+    filePaths.push(absolutePath);
+  });
+  return matches;
+};
+
+const parseInput = () => {
+  const AWS_BUCKET_NAME = getInput("AWS_BUCKET_NAME");
+  const PATTERN = getInput("PATTERN");
+  let DEST = getInput("DEST");
   if (!DEST.endsWith("/")) {
     DEST += "/";
   }
-  const AWS_SECRET_KEY = core.getInput("AWS_SECRET_KEY");
-  const AWS_SECRET_ID = core.getInput("AWS_SECRET_ID");
-  const AWS_REGION = core.getInput("AWS_REGION");
-  console.log(`Updating Bucket ${AWS_BUCKET_NAME} with ${PATTERN}!`);
+  const AWS_SECRET_KEY = getInput("AWS_SECRET_KEY");
+  const AWS_SECRET_ID = getInput("AWS_SECRET_ID");
+  const AWS_REGION = getInput("AWS_REGION");
+
+  console.log(`Updating Bucket ${AWS_BUCKET_NAME} with ${PATTERN}`);
   const s3 = new S3Client({
     region: AWS_REGION,
     credentials: {
@@ -22,29 +33,39 @@ try {
     },
   });
 
-  const files = glob.sync(PATTERN);
+  const files = findFiles(PATTERN);
 
   if (files.length === 0) {
     throw new Error(`No files found matching ${PATTERN}`);
   }
+  return { files, s3, DEST, AWS_BUCKET_NAME };
+};
 
+const uploadFiles = async (files, s3, DEST, AWS_BUCKET_NAME) => {
   files.forEach((file) => {
-    const body = fs.readFileSync(file);
+    const body = readFileSync(file);
+    const fileName = basename(file);
     const params = {
       Bucket: AWS_BUCKET_NAME,
-      Key: DEST + file.replace(/\\/g, "/"),
+      Key: DEST + fileName,
       Body: body,
     };
     s3.send(new PutObjectCommand(params))
       .then(() => {
         console.log(`Successful upload of ${file} to ${AWS_BUCKET_NAME}`);
-        core.setOutput("uploaded", true);
       })
       .catch((err) => {
-        console.log(`Failed upload of ${file} to ${AWS_BUCKET_NAME}`);
+        console.error(`Failed upload of ${file} to ${AWS_BUCKET_NAME}`);
         throw err;
       });
   });
+};
+
+try {
+  const { files, s3, DEST, AWS_BUCKET_NAME } = parseInput();
+  uploadFiles(files, s3, DEST, AWS_BUCKET_NAME);
+  setOutput("uploaded", true);
 } catch (error) {
- core.setFailed(error.message);
+  setOutput("uploaded", false);
+  setFailed(error.message);
 }
