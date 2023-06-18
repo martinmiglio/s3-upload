@@ -32,7 +32,8 @@ try {
   files.forEach((file) => {
     const body = fs.readFileSync(file);
     params.Body = body;
-    params.Key = DEST + "/" + file.replace(/\\/g, "/");
+    params.Key =
+      DEST + (DEST.endsWith("/") ? "" : "/") + file.replace(/\\/g, "/");
     s3.upload(params, (err, data) => {
       if (err) {
         console.log(`Failed upload of ${file} to ${AWS_BUCKET_NAME}`);
