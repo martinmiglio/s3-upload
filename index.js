@@ -1,10 +1,10 @@
-import { getInput, setFailed, setOutput } from "@actions/core";
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { readFileSync } from "fs";
-import { sync } from "glob";
-import { basename } from "path";
+const { getInput, setFailed, setOutput } = require("@actions/core");
+const { PutObjectCommand, S3Client } = require("@aws-sdk/client-s3");
+const { readFileSync } = require("fs");
+const { sync } = require("glob");
+const { basename } = require("path");
 
-try {
+const parseInput = () => {
   const AWS_BUCKET_NAME = getInput("AWS_BUCKET_NAME");
   const PATTERN = getInput("PATTERN");
   let DEST = getInput("DEST");
@@ -14,6 +14,7 @@ try {
   const AWS_SECRET_KEY = getInput("AWS_SECRET_KEY");
   const AWS_SECRET_ID = getInput("AWS_SECRET_ID");
   const AWS_REGION = getInput("AWS_REGION");
+
   console.log(`Updating Bucket ${AWS_BUCKET_NAME} with ${PATTERN}!`);
   const s3 = new S3Client({
     region: AWS_REGION,
@@ -28,7 +29,10 @@ try {
   if (files.length === 0) {
     throw new Error(`No files found matching ${PATTERN}`);
   }
+  return { files, s3, DEST, AWS_BUCKET_NAME };
+};
 
+const uploadFiles = async (files, s3, DEST, AWS_BUCKET_NAME) => {
   files.forEach((file) => {
     const body = readFileSync(file);
     const fileName = basename(file);
@@ -47,6 +51,11 @@ try {
         throw err;
       });
   });
+};
+
+try {
+  const { files, s3, DEST, AWS_BUCKET_NAME } = parseInput();
+  uploadFiles(files, s3, DEST, AWS_BUCKET_NAME);
 } catch (error) {
   setOutput("uploaded", false);
   setFailed(error.message);
