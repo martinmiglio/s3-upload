@@ -1,12 +1,12 @@
 const { getInput, setFailed, setOutput } = require("@actions/core");
 const { PutObjectCommand, S3Client } = require("@aws-sdk/client-s3");
 const { readFileSync } = require("fs");
-const glob = require("glob");
+const fg = require("fast-glob");
 const { basename, resolve } = require("path");
 
 const findFiles = (pattern) => {
   try {
-    const files = glob.sync(pattern, { dot: true });
+    const files = fg.sync(pattern, { absolute: true });
     return files.map((file) => resolve(file));
   } catch (error) {
     throw new Error(`Error occurred while finding files: ${error.message}`);
@@ -16,10 +16,14 @@ const findFiles = (pattern) => {
 const parseInput = () => {
   const AWS_BUCKET_NAME = getInput("AWS_BUCKET_NAME");
   let PATTERN = getInput("PATTERN");
-  if (!PATTERN.startsWith("/")) {
-    PATTERN = process.cwd() + "/" + PATTERN;
-  }
+  // https://github.com/mrmlnc/fast-glob#pattern-syntax
   PATTERN = PATTERN.replace(/\\/g, "/");
+
+  // wait for fast-glob Release v3.3.0 https://github.com/mrmlnc/fast-glob/issues/396
+  // if (!PATTERN.startsWith("/")) {
+  //   PATTERN = fg.convertPathToPattern(process.cwd()) + "/" + PATTERN;
+  // }
+  
   let DEST = getInput("DEST");
   if (!DEST.endsWith("/")) {
     DEST += "/";
