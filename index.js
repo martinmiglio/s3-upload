@@ -1,21 +1,25 @@
 const { getInput, setFailed, setOutput } = require("@actions/core");
 const { PutObjectCommand, S3Client } = require("@aws-sdk/client-s3");
 const { readFileSync } = require("fs");
-const { globSync } = require("glob");
-const { basename } = require("path");
+const glob = require("glob");
+const { basename, resolve } = require("path");
 
 const findFiles = (pattern) => {
-  const matches = globSync(pattern);
-  matches.forEach((match) => {
-    const absolutePath = path.resolve(match);
-    filePaths.push(absolutePath);
-  });
-  return matches;
+  try {
+    const files = glob.sync(pattern, { dot: true });
+    return files.map((file) => resolve(file));
+  } catch (error) {
+    throw new Error(`Error occurred while finding files: ${error.message}`);
+  }
 };
 
 const parseInput = () => {
   const AWS_BUCKET_NAME = getInput("AWS_BUCKET_NAME");
-  const PATTERN = getInput("PATTERN");
+  let PATTERN = getInput("PATTERN");
+  if (!PATTERN.startsWith("/")) {
+    PATTERN = process.cwd() + "/" + PATTERN;
+  }
+  PATTERN = PATTERN.replace(/\\/g, "/");
   let DEST = getInput("DEST");
   if (!DEST.endsWith("/")) {
     DEST += "/";
