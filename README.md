@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: echo "My Data" > myfileglob-${{ github.ref_name }}.txt
-      - uses: martinmiglio/s3-upload@v1
+      - uses: martinmiglio/s3-upload@v2
         with:
           PATTERN: myfileglob*.txt
           DEST: uploads/
