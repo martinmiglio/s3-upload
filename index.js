@@ -19,11 +19,10 @@ const parseInput = () => {
   // https://github.com/mrmlnc/fast-glob#pattern-syntax
   PATTERN = PATTERN.replace(/\\/g, "/");
 
-  // wait for fast-glob Release v3.3.0 https://github.com/mrmlnc/fast-glob/issues/396
-  // if (!PATTERN.startsWith("/")) {
-  //   PATTERN = fg.convertPathToPattern(process.cwd()) + "/" + PATTERN;
-  // }
-  
+  if (!PATTERN.startsWith("/")) {
+    PATTERN = fg.convertPathToPattern(process.cwd()) + "/" + PATTERN;
+  }
+
   let DEST = getInput("DEST");
   if (!DEST.endsWith("/")) {
     DEST += "/";
