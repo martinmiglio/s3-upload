@@ -49,7 +49,7 @@ const parseInput = () => {
 };
 
 const uploadFiles = async (files, s3, DEST, AWS_BUCKET_NAME) => {
-  files.forEach((file) => {
+  const uploadPromises = files.map(async (file) => {
     const body = readFileSync(file);
     const fileName = basename(file);
     const params = {
@@ -57,15 +57,17 @@ const uploadFiles = async (files, s3, DEST, AWS_BUCKET_NAME) => {
       Key: DEST + fileName,
       Body: body,
     };
-    s3.send(new PutObjectCommand(params))
-      .then(() => {
-        console.log(`Successful upload of ${file} to ${AWS_BUCKET_NAME}`);
-      })
-      .catch((err) => {
-        console.error(`Failed upload of ${file} to ${AWS_BUCKET_NAME}`);
-        throw err;
-      });
+
+    try {
+      await s3.send(new PutObjectCommand(params));
+      console.log(`Successful upload of ${file} to ${AWS_BUCKET_NAME}`);
+    } catch (err) {
+      console.error(`Failed upload of ${file} to ${AWS_BUCKET_NAME}`);
+      throw err;
+    }
   });
+
+  await Promise.all(uploadPromises);
 };
 
 try {
