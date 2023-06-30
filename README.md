@@ -1,8 +1,6 @@
-# s3-upload
+# S3 Pattern Upload
 
-Github Action to Upload to S3 Bucket
-
-Uploads to S3 Bucket
+GitHub Action to upload files to an AWS S3 bucket using a glob file pattern
 
 ```yml
 name: Test Run
@@ -14,8 +12,8 @@ jobs:
       - run: echo "My Data" > myfileglob-${{ github.ref_name }}.txt
       - uses: martinmiglio/s3-upload@v2
         with:
-          PATTERN: myfileglob*.txt
-          DEST: uploads/
+          PATTERN: myfileglob*.txt # https://github.com/mrmlnc/fast-glob#pattern-syntax
+          DEST: uploads/ # defaults to root of bucket
           AWS_BUCKET_NAME: temp-test-gh-action
           AWS_REGION: ${{ secrets.AWS_REGION }}
           AWS_SECRET_ID: ${{ secrets.AWS_SECRET_ID }}

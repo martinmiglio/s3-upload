@@ -1,8 +1,8 @@
 name: "S3 Pattern Upload"
-description: "Update S3 Bucket in AWS with a file pattern"
+description: "Upload files to an AWS S3 bucket using a glob file pattern"
 author: "Martin Miglio"
 branding:
-  icon: "check-square"
+  icon: "upload-cloud"
   color: "yellow"
 inputs:
   PATTERN:
@@ -10,7 +10,7 @@ inputs:
     default: ""
   DEST:
     description: "Key"
-    default: ""
+    default: "/"
   AWS_BUCKET_NAME:
     description: "Bucket Name"
     default: ""
