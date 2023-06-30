@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: echo "My Data" > myfileglob-${{ github.ref_name }}.txt
-      - uses: martinmiglio/s3-upload@v2
+      - uses: martinmiglio/s3-upload@v3
         with:
           PATTERN: myfileglob*.txt # https://github.com/mrmlnc/fast-glob#pattern-syntax
           DEST: uploads/ # defaults to root of bucket
